@@ -1,0 +1,7 @@
+-- Example SQL to create the database using psql or a GUI tool
+-- Run in Postgres (adjust user/password as needed):
+-- CREATE DATABASE certificate_db;
+-- After creating the DB, set DATABASE_URL in .env and run:
+-- 1) npx prisma generate
+-- 2) npx prisma migrate dev --name init
+-- Or for quick sync: npx prisma db push

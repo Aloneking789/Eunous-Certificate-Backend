@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://neondb_owner:npg_5ycToq4wkBZt@ep-cool-surf-aodxjpca-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Certificate {
+  id                     Int      @id @default(autoincrement())
+
+  fullName               String
+  fatherName             String
+  courseName             String
+  collegeName            String?
+  branch                 String?
+  semester               String?
+
+  internshipDomain       String
+  startDate              DateTime
+  endDate                DateTime
+
+  durationDays           Int
+  totalHours             Int
+
+  performance            String?
+
+  certificateIssueDate   DateTime @default(now())
+
+  companyName            String   @default("Eunous IT")
+
+  authorizedSignatory    String?
+
+  companyAddress         String?
+  companyEmail           String?
+  companyWebsite         String?
+
+  certificateNumber      String   @unique
+  registrationNumber     String   @unique
+
+  verificationUrl        String
+  qrCode                 String?
+
+  isVerified             Boolean  @default(true)
+
+  createdAt              DateTime @default(now())
+}
