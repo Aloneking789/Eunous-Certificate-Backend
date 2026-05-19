@@ -15,57 +15,57 @@ model Admin {
 }
 
 model Certificate {
-  id                     Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  fullName               String
-  fatherName             String
-  courseName             String
-  collegeName            String?
-  branch                 String?
-  semester               String?
+  fullName    String
+  fatherName  String
+  courseName  String
+  collegeName String?
+  branch      String?
+  semester    String?
 
-  internshipDomain       String
-  startDate              DateTime
-  endDate                DateTime
+  internshipDomain String
+  startDate        DateTime
+  endDate          DateTime
 
-  durationDays           Int
-  totalHours             Int
+  durationDays Int
+  totalHours   Int
 
-  performance            String?
+  performance String?
 
-  certificateIssueDate   DateTime @default(now())
-  issueDate              DateTime @default(now())
-  studentRoll            String?
+  certificateIssueDate DateTime @default(now())
+  issueDate            DateTime @default(now())
+  studentRoll          String?
 
-  companyName            String   @default("Eunous IT")
+  companyName String @default("Eunous IT")
 
-  authorizedSignatory    String?
+  authorizedSignatory String?
 
-  companyAddress         String?
-  companyEmail           String?
-  companyWebsite         String?
+  companyAddress String?
+  companyEmail   String?
+  companyWebsite String?
 
-  certificateNumber      String   @unique
-  registrationNumber     String   @unique
+  certificateNumber  String @unique
+  registrationNumber String @unique
 
-  verificationUrl        String
-  qrCode                 String?
+  verificationUrl String
+  qrCode          String?
 
-  isVerified             Boolean  @default(true)
+  isVerified Boolean @default(true)
 
-  createdAt              DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Course {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
   description String?
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
 }
 
 model Branch {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
   description String?
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
 }
