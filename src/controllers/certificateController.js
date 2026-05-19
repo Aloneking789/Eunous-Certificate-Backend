@@ -6,7 +6,8 @@ exports.createCertificate = async (req, res) => {
     const {
       fullName, fatherName, courseName, collegeName, branch, semester,
       internshipDomain, startDate, endDate, totalHours, performance,
-      authorizedSignatory, companyAddress, companyEmail, companyWebsite
+      authorizedSignatory, companyAddress, companyEmail, companyWebsite,
+      studentRoll, issueDate
     } = req.body;
 
     if (!fullName || !fatherName || !courseName || !internshipDomain || !startDate || !endDate) {
@@ -37,6 +38,8 @@ exports.createCertificate = async (req, res) => {
         companyAddress,
         companyEmail,
         companyWebsite,
+        studentRoll,
+        issueDate: issueDate ? new Date(issueDate) : undefined,
         certificateNumber,
         registrationNumber,
         verificationUrl,
@@ -175,6 +178,8 @@ exports.updateCertificate = async (req, res) => {
       if (data.startDate) data.startDate = new Date(data.startDate);
       if (data.endDate) data.endDate = new Date(data.endDate);
     }
+
+    if (data.issueDate) data.issueDate = new Date(data.issueDate);
 
     const updated = await prisma.certificate.update({ where: { id }, data });
     res.json({ success: true, message: 'Certificate updated', data: updated });

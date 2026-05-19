@@ -34,6 +34,8 @@ model Certificate {
   performance            String?
 
   certificateIssueDate   DateTime @default(now())
+  issueDate              DateTime @default(now())
+  studentRoll            String?
 
   companyName            String   @default("Eunous IT")
 
@@ -52,4 +54,18 @@ model Certificate {
   isVerified             Boolean  @default(true)
 
   createdAt              DateTime @default(now())
+}
+
+model Course {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  description String?
+  createdAt DateTime @default(now())
+}
+
+model Branch {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  description String?
+  createdAt DateTime @default(now())
 }
