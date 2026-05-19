@@ -5,10 +5,13 @@ const controller = require('../controllers/certificateController');
 
 // Public verify route (must be before :id)
 router.get('/verify/:registrationNumber', controller.verifyCertificate);
+// Public get-by-registration route
+router.get('/registration/:registrationNumber', controller.getCertificateByRegistrationNumber);
 
 // Protected routes
 router.post('/', auth, controller.createCertificate);
 router.get('/', auth, controller.getAllCertificates);
+router.get('/dashboard', auth, controller.getDashboardStats);
 router.get('/:id', auth, controller.getSingleCertificate);
 router.put('/:id', auth, controller.updateCertificate);
 router.delete('/:id', auth, controller.deleteCertificate);

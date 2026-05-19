@@ -63,6 +63,59 @@ exports.verifyCertificate = async (req, res) => {
   }
 };
 
+exports.getCertificateByRegistrationNumber = async (req, res) => {
+  try {
+    const { registrationNumber } = req.params;
+    const cert = await prisma.certificate.findUnique({ where: { registrationNumber } });
+    if (!cert) return res.status(404).json({ success: false, message: 'Certificate not found' });
+    res.json({ success: true, data: cert });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.getDashboardStats = async (req, res) => {
+  try {
+    const total = await prisma.certificate.count();
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const certificatesToday = await prisma.certificate.count({
+      where: { createdAt: { gte: todayStart } }
+    });
+
+    const verified = await prisma.certificate.count({ where: { isVerified: true } });
+    const pendingVerifications = await prisma.certificate.count({ where: { isVerified: false } });
+
+    const recentCertificates = await prisma.certificate.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: {
+        id: true,
+        fullName: true,
+        registrationNumber: true,
+        certificateNumber: true,
+        createdAt: true,
+        isVerified: true
+      }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        totalCertificates: total,
+        certificatesToday,
+        verified,
+        pendingVerifications,
+        recentCertificates
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 exports.getAllCertificates = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
