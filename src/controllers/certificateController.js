@@ -44,7 +44,7 @@ exports.createCertificate = async (req, res) => {
 
     const year = new Date(startDate).getFullYear();
     const { certificateNumber, registrationNumber } =
-      await generateNumbersFromYear(year);
+      await generateNumbersFromYear(year, courseName);
     const durationDays = calculateDurationDays(startDate, endDate);
     const verificationUrl = await generateVerificationUrl(registrationNumber);
     const qrCode = await generateQrCode(verificationUrl);
