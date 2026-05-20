@@ -11,6 +11,7 @@ exports.createCertificate = async (req, res) => {
     const {
       fullName,
       fatherName,
+      gender,
       courseName,
       collegeName,
       branch,
@@ -52,6 +53,7 @@ exports.createCertificate = async (req, res) => {
       data: {
         fullName,
         fatherName,
+        gender,
         courseName,
         collegeName,
         branch,
@@ -151,6 +153,7 @@ exports.getDashboardStats = async (req, res) => {
       select: {
         id: true,
         fullName: true,
+        gender: true,
         registrationNumber: true,
         certificateNumber: true,
         createdAt: true,

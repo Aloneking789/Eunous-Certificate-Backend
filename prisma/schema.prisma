@@ -19,6 +19,7 @@ model Certificate {
 
   fullName    String
   fatherName  String
+  gender      String?
   courseName  String
   collegeName String?
   branch      String?
