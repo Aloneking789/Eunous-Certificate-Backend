@@ -3,9 +3,9 @@ const QRCode = require("qrcode");
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-function getCourseAbbr(courseName) {
-  if (!courseName || typeof courseName !== "string") return "XX";
-  const parts = courseName
+function getBranchAbbr(name) {
+  if (!name || typeof name !== "string") return "XX";
+  const parts = name
     .split(/\s+/)
     .map((w) => w.replace(/[^A-Za-z]/g, ""))
     .filter(Boolean);
@@ -17,19 +17,19 @@ function getCourseAbbr(courseName) {
     .toUpperCase();
 }
 
-async function generateNumbersFromYear(year, courseName) {
+async function generateNumbersFromYear(year, branchName) {
   const companyCode = "EUIT";
-  const courseAbbr = getCourseAbbr(courseName);
+  const branchAbbr = getBranchAbbr(branchName);
   const yearSuffix = String(year).slice(-2);
 
-  // Count existing certificates for this company-course-year pattern
-  const startsWith = `${companyCode}-${courseAbbr}${yearSuffix}-V`;
+  // Count existing certificates for this company-branch-year pattern
+  const startsWith = `${companyCode}-${branchAbbr}${yearSuffix}-V`;
   const count = await prisma.certificate.count({
     where: { certificateNumber: { startsWith } },
   });
   const seq = count + 1;
   const seqPadded = String(seq).padStart(3, "0"); // V001
-  const certificateNumber = `${companyCode}-${courseAbbr}${yearSuffix}-V${seqPadded}`;
+  const certificateNumber = `${companyCode}-${branchAbbr}${yearSuffix}-V${seqPadded}`;
 
   // Keep registration number as a global per-year increment (4 digits)
   const regCount = await prisma.certificate.count({
