@@ -77,13 +77,11 @@ exports.createCertificate = async (req, res) => {
       },
     });
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Certificate created successfully",
-        data: cert,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Certificate created successfully",
+      data: cert,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
@@ -97,13 +95,11 @@ exports.verifyCertificate = async (req, res) => {
       where: { registrationNumber },
     });
     if (!cert)
-      return res
-        .status(404)
-        .json({
-          success: false,
-          valid: false,
-          message: "Certificate not found",
-        });
+      return res.status(404).json({
+        success: false,
+        valid: false,
+        message: "Certificate not found",
+      });
     res.json({ success: true, valid: true, certificate: cert });
   } catch (err) {
     console.error(err);
