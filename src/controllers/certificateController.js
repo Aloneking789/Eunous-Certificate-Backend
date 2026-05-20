@@ -110,12 +110,10 @@ exports.createCertificate = async (req, res) => {
 
     if (!cert) {
       console.error(lastErr);
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: "Could not generate unique numbers, please retry",
-        });
+      return res.status(500).json({
+        success: false,
+        message: "Could not generate unique numbers, please retry",
+      });
     }
 
     res.status(201).json({
