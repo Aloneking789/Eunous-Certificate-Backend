@@ -51,7 +51,7 @@ exports.createCertificate = async (req, res) => {
     let lastErr = null;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const { certificateNumber, registrationNumber } =
-        await generateNumbersFromYear(year, branch || courseName);
+        await generateNumbersFromYear(year, branch || courseName, fullName);
 
       const verificationUrl = await generateVerificationUrl(registrationNumber);
       const qrCode = await generateQrCode(verificationUrl);
@@ -95,7 +95,10 @@ exports.createCertificate = async (req, res) => {
           Array.isArray(err.meta.target)
         ) {
           const targets = err.meta.target;
-          if (targets.includes("registrationNumber") || targets.includes("certificateNumber")) {
+          if (
+            targets.includes("registrationNumber") ||
+            targets.includes("certificateNumber")
+          ) {
             // collision - try again
             continue;
           }
@@ -109,7 +112,10 @@ exports.createCertificate = async (req, res) => {
       console.error(lastErr);
       return res
         .status(500)
-        .json({ success: false, message: "Could not generate unique numbers, please retry" });
+        .json({
+          success: false,
+          message: "Could not generate unique numbers, please retry",
+        });
     }
 
     res.status(201).json({

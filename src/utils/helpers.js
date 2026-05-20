@@ -17,25 +17,38 @@ function getBranchAbbr(name) {
     .toUpperCase();
 }
 
-async function generateNumbersFromYear(year, branchName) {
+function getPersonInitial(name) {
+  if (!name || typeof name !== "string") return "X";
+  const trimmed = name.trim();
+  const m = trimmed.match(/[A-Za-z]/);
+  if (m) return m[0].toUpperCase();
+  return (trimmed.charAt(0) || "X").toUpperCase();
+}
+
+async function generateNumbersFromYear(year, branchName, personName) {
   const companyCode = "EUIT";
   const branchAbbr = getBranchAbbr(branchName);
   const yearSuffix = String(year).slice(-2);
-  // Determine next certificate sequence by looking up the latest certificate for this pattern
-  const startsWith = `${companyCode}-${branchAbbr}${yearSuffix}-V`;
-  const lastCert = await prisma.certificate.findMany({
-    where: { certificateNumber: { startsWith } },
-    orderBy: { certificateNumber: "desc" },
-    take: 1,
+  const initial = getPersonInitial(personName);
+
+  // Determine next certificate sequence by scanning existing numbers for this branch-year prefix
+  const prefix = `${companyCode}-${branchAbbr}${yearSuffix}-`;
+  const existing = await prisma.certificate.findMany({
+    where: { certificateNumber: { startsWith: prefix } },
+    select: { certificateNumber: true },
   });
 
-  let seq = 1;
-  if (lastCert && lastCert.length > 0) {
-    const m = String(lastCert[0].certificateNumber).match(/-V(\d+)$/);
-    if (m) seq = parseInt(m[1], 10) + 1;
+  let maxSeq = 0;
+  for (const row of existing) {
+    const m = String(row.certificateNumber).match(/([A-Za-z])(\d+)$/);
+    if (m) {
+      const n = parseInt(m[2], 10);
+      if (!isNaN(n) && n > maxSeq) maxSeq = n;
+    }
   }
-  const seqPadded = String(seq).padStart(3, "0"); // V001
-  const certificateNumber = `${companyCode}-${branchAbbr}${yearSuffix}-V${seqPadded}`;
+  const seq = maxSeq + 1;
+  const seqPadded = String(seq).padStart(3, "0"); // 001
+  const certificateNumber = `${companyCode}-${branchAbbr}${yearSuffix}-${initial}${seqPadded}`;
 
   // Determine next registration sequence by looking up the latest registration for the year
   const regStarts = `EUNOUS-REG-${year}-`;
