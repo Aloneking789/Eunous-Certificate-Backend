@@ -7,6 +7,8 @@ const controller = require('../controllers/certificateController');
 router.get('/verify/:registrationNumber', controller.verifyCertificate);
 // Public get-by-registration route
 router.get('/registration/:registrationNumber', controller.getCertificateByRegistrationNumber);
+// Public get-by-certificate-number route
+router.get('/number/:certificateNumber', controller.getCertificateByCertificateNumber);
 
 // Protected routes
 router.post('/', auth, controller.createCertificate);

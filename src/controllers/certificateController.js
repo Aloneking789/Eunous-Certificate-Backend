@@ -165,6 +165,23 @@ exports.getCertificateByRegistrationNumber = async (req, res) => {
   }
 };
 
+exports.getCertificateByCertificateNumber = async (req, res) => {
+  try {
+    const { certificateNumber } = req.params;
+    const cert = await prisma.certificate.findUnique({
+      where: { certificateNumber },
+    });
+    if (!cert)
+      return res
+        .status(404)
+        .json({ success: false, message: "Certificate not found" });
+    res.json({ success: true, data: cert });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 exports.getDashboardStats = async (req, res) => {
   try {
     const total = await prisma.certificate.count();
