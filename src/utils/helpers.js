@@ -21,21 +21,35 @@ async function generateNumbersFromYear(year, branchName) {
   const companyCode = "EUIT";
   const branchAbbr = getBranchAbbr(branchName);
   const yearSuffix = String(year).slice(-2);
-
-  // Count existing certificates for this company-branch-year pattern
+  // Determine next certificate sequence by looking up the latest certificate for this pattern
   const startsWith = `${companyCode}-${branchAbbr}${yearSuffix}-V`;
-  const count = await prisma.certificate.count({
+  const lastCert = await prisma.certificate.findMany({
     where: { certificateNumber: { startsWith } },
+    orderBy: { certificateNumber: "desc" },
+    take: 1,
   });
-  const seq = count + 1;
+
+  let seq = 1;
+  if (lastCert && lastCert.length > 0) {
+    const m = String(lastCert[0].certificateNumber).match(/-V(\d+)$/);
+    if (m) seq = parseInt(m[1], 10) + 1;
+  }
   const seqPadded = String(seq).padStart(3, "0"); // V001
   const certificateNumber = `${companyCode}-${branchAbbr}${yearSuffix}-V${seqPadded}`;
 
-  // Keep registration number as a global per-year increment (4 digits)
-  const regCount = await prisma.certificate.count({
-    where: { registrationNumber: { startsWith: `EUNOUS-REG-${year}-` } },
+  // Determine next registration sequence by looking up the latest registration for the year
+  const regStarts = `EUNOUS-REG-${year}-`;
+  const lastReg = await prisma.certificate.findMany({
+    where: { registrationNumber: { startsWith: regStarts } },
+    orderBy: { registrationNumber: "desc" },
+    take: 1,
   });
-  const regSeq = regCount + 1;
+
+  let regSeq = 1;
+  if (lastReg && lastReg.length > 0) {
+    const m2 = String(lastReg[0].registrationNumber).match(/-(\d+)$/);
+    if (m2) regSeq = parseInt(m2[1], 10) + 1;
+  }
   const regSeqPadded = String(regSeq).padStart(4, "0");
   const registrationNumber = `EUNOUS-REG-${year}-${regSeqPadded}`;
 

@@ -43,40 +43,74 @@ exports.createCertificate = async (req, res) => {
     }
 
     const year = new Date(startDate).getFullYear();
-    // Use branch name for numbering; fall back to courseName if branch absent
-    const { certificateNumber, registrationNumber } =
-      await generateNumbersFromYear(year, branch || courseName);
     const durationDays = calculateDurationDays(startDate, endDate);
-    const verificationUrl = await generateVerificationUrl(registrationNumber);
-    const qrCode = await generateQrCode(verificationUrl);
 
-    const cert = await prisma.certificate.create({
-      data: {
-        fullName,
-        fatherName,
-        gender,
-        courseName,
-        collegeName,
-        branch,
-        semester,
-        internshipDomain,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        durationDays,
-        totalHours: totalHours || 0,
-        performance,
-        authorizedSignatory,
-        companyAddress,
-        companyEmail,
-        companyWebsite,
-        studentRoll,
-        issueDate: issueDate ? new Date(issueDate) : undefined,
-        certificateNumber,
-        registrationNumber,
-        verificationUrl,
-        qrCode,
-      },
-    });
+    // Try creating with unique numbers, retry on unique-constraint collisions
+    const maxAttempts = 5;
+    let cert = null;
+    let lastErr = null;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const { certificateNumber, registrationNumber } =
+        await generateNumbersFromYear(year, branch || courseName);
+
+      const verificationUrl = await generateVerificationUrl(registrationNumber);
+      const qrCode = await generateQrCode(verificationUrl);
+
+      try {
+        cert = await prisma.certificate.create({
+          data: {
+            fullName,
+            fatherName,
+            gender,
+            courseName,
+            collegeName,
+            branch,
+            semester,
+            internshipDomain,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            durationDays,
+            totalHours: totalHours || 0,
+            performance,
+            authorizedSignatory,
+            companyAddress,
+            companyEmail,
+            companyWebsite,
+            studentRoll,
+            issueDate: issueDate ? new Date(issueDate) : undefined,
+            certificateNumber,
+            registrationNumber,
+            verificationUrl,
+            qrCode,
+          },
+        });
+        break; // success
+      } catch (err) {
+        lastErr = err;
+        // Retry only on unique constraint violations for the generated fields
+        if (
+          err &&
+          err.code === "P2002" &&
+          err.meta &&
+          Array.isArray(err.meta.target)
+        ) {
+          const targets = err.meta.target;
+          if (targets.includes("registrationNumber") || targets.includes("certificateNumber")) {
+            // collision - try again
+            continue;
+          }
+        }
+        // unknown error - rethrow
+        throw err;
+      }
+    }
+
+    if (!cert) {
+      console.error(lastErr);
+      return res
+        .status(500)
+        .json({ success: false, message: "Could not generate unique numbers, please retry" });
+    }
 
     res.status(201).json({
       success: true,
